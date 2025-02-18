@@ -1,4 +1,4 @@
-<<script setup>
+<script setup>
 import { ref, onMounted, computed, watch } from "vue";
 import axios from "axios";
 
@@ -8,6 +8,7 @@ const toCurrency = ref("USD");
 const exchangeRates = ref({});
 const convertedAmount = ref(null);
 const errorMessage = ref("");
+const isConverted = ref(false);
 
 const fetchExchangeRates = async () => {
   try {
@@ -31,6 +32,11 @@ watch(amount, (newVal) => {
   }
 });
 
+watch([fromCurrency, toCurrency], () => {
+  convertedAmount.value = null;
+  isConverted.value = false;
+});
+
 const convertCurrency = () => {
   if (!isFormValid.value) return;
 
@@ -40,6 +46,7 @@ const convertCurrency = () => {
   const conversionRate = toRate / fromRate;
 
   convertedAmount.value = (amount.value * conversionRate).toFixed(2);
+  isConverted.value = true;
 };
 
 onMounted(fetchExchangeRates);
@@ -64,15 +71,15 @@ onMounted(fetchExchangeRates);
     </select>
 
     <p v-if="fromCurrency && toCurrency">
-      1 {{ fromCurrency }} = {{ (exchangeRates[toCurrency] / exchangeRates[fromCurrency]).toFixed(4) }} {{ toCurrency }}
+      1 {{ fromCurrency }} =
+      {{ exchangeRates[toCurrency] && exchangeRates[fromCurrency] ? (exchangeRates[toCurrency] / exchangeRates[fromCurrency]).toFixed(4) : 'N/A' }} {{ toCurrency }}
     </p>
 
     <button :disabled="!isFormValid" @click="convertCurrency">Convert</button>
 
-    <!-- Reserve space for the error message -->
     <p class="error-placeholder">{{ errorMessage || " " }}</p>
 
-    <p v-if="convertedAmount !== null">Converted Amount: {{ convertedAmount }} {{ toCurrency }}</p>
+    <p v-if="isConverted && convertedAmount !== null">Converted Amount: {{ convertedAmount }} {{ toCurrency }}</p>
   </div>
 </template>
 
