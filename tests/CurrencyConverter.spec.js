@@ -22,7 +22,7 @@ describe('CurrencyConverter', () => {
     const wrapper = mount(CurrencyConverter)
 
 
-    wrapper.vm.amount = 10
+    wrapper.vm.amount = 1
     await wrapper.find('button').trigger('click')
 
     expect(wrapper.text()).toContain("EURUSDJPYtoEURUSDJPY 1 EUR = 1.1000 USDConvert")
